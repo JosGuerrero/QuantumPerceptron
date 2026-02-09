@@ -1,0 +1,187 @@
+
+\documentclass{article}
+\usepackage[english]{babel}
+\usepackage[a4paper, top=2cm, bottom=2cm, left=3cm,right=2cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{physics}
+\usepackage{quantikz}
+\usepackage[
+backend=biber,
+style=numeric,
+sorting=none
+]{biblatex}
+\addbibresource{biblio.bib} %Imports bibliography file
+\title{Classification of Light Sources Using a Quantum Artificial Neuron}
+\author{Diego Guerrero}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+A quantum perceptron was implemented using amplitude encoding on quantum hypergraph states and trained to classify light sources as coherent or thermal. While the evaluation of the perceptron is performed as a quantum process, the training stage was carried out classically using genetic algorithms. A classification accuracy of $93.37\%$ was achieved in noiseless quantum simulations. In contrast, simulations using fake noisy backends showed a significantly lower accuracy of approximately $50\%$. This degradation in performance is conjectured to arise from the encoding of the hypergraph states and the large circuit depth required for their implementation.
+\end{abstract}
+
+\section{Introduction}
+
+There exist two main types of light relevant in quantum optics: coherent light and thermal light. Coherent light is typically associated with controlled light sources such as lasers, while thermal light is commonly linked to environmental or chaotic sources and exhibits stronger correlations. Distinguishing between these two types of light is crucial for several technological and experimental applications.
+\section{The Quantum Perceptron}
+
+The quantum perceptron computes the projection between two quantum states in which information is encoded in the amplitudes of the computational basis. Let $\ket{\psi_i}$ be the input state and $\ket{\psi_w}$ the weight state. The perceptron output corresponds to the squared overlap between these two states.
+
+To implement this, two unitary transformations $U_i$ and $U_w$ are defined. The unitary $U_i$ maps the reference state $\ket{0}^{\otimes m}$ to the input state $\ket{\psi_i}$, while $U_w$ maps the weight state to the computational basis state $\ket{1}^{\otimes m}$. The action of these unitaries can be interpreted as rotations in Hilbert space: $U_i$ rotates the reference vector into the input state, and $U_w$ rotates the weight state onto the vertical axis.
+
+Since the overlap is invariant under unitary transformations, it is sufficient to prepare $\ket{\psi_i}$ and then apply $U_w$. The resulting projection is equivalent to the projection of the transformed input state onto $\ket{1}^{\otimes m}$. This quantity can be extracted using an ancilla qubit entangled with all system qubits through a multi-controlled NOT gate, as shown in Fig.~\ref{fig:QuantPercCirc}.
+
+\begin{figure}
+\begin{center}
+\resizebox{\linewidth}{0.20\linewidth}{
+\begin{quantikz}
+\lstick{\text{$q_{0}$} \hspace{0.5cm} $\ket{0}$} & \gate[wires=5][2cm]{U_i} & \gate[wires=5][2cm]{U_w} & \ctrl{5} & \qw & \qw \\
+\lstick{\text{$q_{1}$} \hspace{0.5cm} $\ket{0}$} & & & \ctrl{4} & \qw & \qw \\
+\lstick{\vdots} & & & \ctrl{3} & \qw & \qw \\
+\lstick{\text{$q_{N_q-2}$} \hspace{0.5cm} $\ket{0}$} & & & \ctrl{2} & \qw & \qw \\
+\lstick{\text{$q_{N_q-1}$} \hspace{0.5cm} $\ket{0}$} & & & \ctrl{1} & \qw & \qw \\
+\lstick{\text{$a$} \hspace{0.5cm} $\ket{0}$} & \qw & \qw & \targ{} & \meter{} & \cw \rstick{$\left| \sum_j i_j w_j \right|^2$}
+\end{quantikz}
+}
+\end{center}
+\caption{Quantum circuit implementing the quantum perceptron. The ancilla qubit encodes the squared overlap between the input and weight states.}
+\label{fig:QuantPercCirc}
+\end{figure}
+
+The classical input and weight vectors are defined as
+\begin{equation}
+\vec{i} =
+\begin{bmatrix}
+i_0 \\ i_1 \\ \vdots \\ i_{m-1}
+\end{bmatrix},
+\quad
+\vec{w} =
+\begin{bmatrix}
+w_0 \\ w_1 \\ \vdots \\ w_{m-1}
+\end{bmatrix},
+\quad
+i_j, w_j \in \{-1,1\}.
+\end{equation}
+
+The corresponding quantum states are
+\begin{equation}
+\ket{\psi_i} = \frac{1}{\sqrt{m}} \sum_{j=0}^{m-1} i_j \ket{j},
+\label{eq:ket_psi_i}
+\end{equation}
+\begin{equation}
+\ket{\psi_w} = \frac{1}{\sqrt{m}} \sum_{j=0}^{m-1} w_j \ket{j}.
+\label{eq:ket_psi_w}
+\end{equation}
+
+The unitaries are defined such that
+\begin{equation}
+U_i \ket{0}^{\otimes m} = \ket{\psi_i},
+\label{eq:ui}
+\end{equation}
+\begin{equation}
+U_w \ket{\psi_w} = \ket{1}^{\otimes m}.
+\label{eq:uw}
+\end{equation}
+
+A graphical representation of these transformations is shown in Fig.~\ref{fig:projection}.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.95\textwidth]{figures/UiUw.pdf}
+\end{center}
+  \caption{Schematic representation of the unitary transformations $U_i$ and $U_w$ used to compute the state overlap \cite{tacchino-2019}.}
+\label{fig:projection}
+\end{figure}
+
+The definition of the transformations can be done by first realizing that the encoding quantum states are quantum hypergraph states \cite{Rossi_2013,}. 
+
+A quantum hypergraph state is associated with a hypergraph \( g_{\le n} = (V,E) \) of \( n \) vertices, where hyperedges may connect any number \( k \in \{1,\dots,n\} \) of vertices. Each vertex is assigned a qubit initialized in the state \( |+\rangle \), yielding the initial state \( |+\rangle^{\otimes n} \). For every hyperedge connecting qubits \( i_1, \dots, i_k \), a multi-controlled phase gate \( C^k Z_{i_1 \dots i_k} \) is applied. The resulting quantum hypergraph state is
+
+\[
+|g_{\le n}\rangle = \prod_{k=1}^{n} \prod_{\{i_1,\dots,i_k\}\in E} C^k Z_{i_1 \dots i_k} \, |+\rangle^{\otimes n},
+\]
+
+Here results evident that, in order to generate the quantum hypegraph states, the main difficulty is to find the correct sequence of multi controlled z gates. 
+
+\section{Data Encoding and Training}
+
+The experimental data were first converted into binary form and concatenated into a single binary string. This string was then mapped to values in $\{-1,1\}$ to enable encoding into hypergraph states. The encoding procedure is illustrated in Fig.~\ref{fig:data}. 
+
+Training was performed using a genetic algorithm. An initial population of weight vectors was evolved through crossover operations and random sign flips. This process converged to an optimal weight vector that maximized the classification accuracy. The training was performed in classical computing, ideal quantum computing simulation and noisy quantum simulation. 
+
+The unitary transformations, in this particular case, were generated using diagonal matrices that assign a phase of $-1$ to selected computational basis states, resulting in diagonal unitaries with entries $\pm 1$, defined as the following:
+
+\begin{equation}
+U'_i = \mathrm{diag}(\vec{i}^{\,T}),
+\end{equation}
+\begin{equation}
+U'_w = \mathrm{diag}(\vec{w}^{\,T}),
+\end{equation}
+which leads to
+\begin{equation}
+U_i = H^{\otimes m} U'_i,
+\end{equation}
+\begin{equation}
+U_w = X H^{\otimes m} U'_w.
+\end{equation}
+
+
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.95\textwidth]{figures/decode.pdf}
+\end{center}
+\caption{Encoding of classical data into quantum hypergraph states used as input for the quantum perceptron.}
+\label{fig:data}
+\end{figure}
+
+\section{Results}
+
+The best performance was obtained when both training and evaluation were carried out using noiseless simulations, as shown in Fig.~\ref{fig:test_eval}. In contrast, training proved ineffective when the perceptron was executed on real quantum hardware. This discrepancy can be attributed to the extremely large number of gates required to implement the unitary transformations, which can exceed $1.1 \times 10^5$ gates after transpilation, as illustrated in Figs.~\ref{fig:brussels} and \ref{fig:casablanca}.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.95\textwidth]{figures/efficiencies.png}
+\end{center}
+\caption{Classification performance on the evaluation set using a training set of 1000 samples.}
+\label{fig:test_eval}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.95\textwidth]{figures/brussels_no_gates.png}
+\end{center}
+\caption{Histogram of the number of gates required to implement the quantum perceptron on the IBM Brussels backend.}
+\label{fig:brussels}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.95\textwidth]{figures/casaBlanca_7_no_gates.png}
+\end{center}
+\caption{Histogram of the number of gates required for implementation on the 7-qubit IBM Casablanca backend.}
+\label{fig:casablanca}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.95\textwidth]{figures/Error_fake_vs_real.png}
+\end{center}
+\caption{Comparison of the absolute mean error with respect to ideal simulations for fake noisy backends and real quantum processors.}
+\label{fig:error}
+\end{figure}
+
+\section{Discussion}
+
+The generation of hypergraph states constitutes the most computationally demanding part of the algorithm and represents the main source of noise. An important open question is whether these states can be generated more efficiently so that the corresponding unitary transformations require fewer gates and yield lower noise levels. In this regard, 
+
+In noisy executions, coherent and thermal light exhibit distinct error patterns. For coherent light, the absolute error oscillates between $0.04$ and $0.08$, whereas for thermal light it lies in the range $0.14$ to $0.20$. This suggests that entangled data are more sensitive to noise, possibly due to the stronger correlations present in thermal light.
+
+Finally, it would be desirable to explore whether the optimization process itself can be implemented using quantum protocols. At present, only the inference stage is quantum, while training remains classical. Given the low computational cost of the classical optimization, a fully classical approach may currently be more practical unless a clear quantum advantage can be demonstrated.
+
+\printbibliography
+\end{document}

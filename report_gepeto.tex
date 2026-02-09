@@ -1,0 +1,157 @@
+\documentclass[12pt,a4paper]{article}
+
+% ======================
+% Packages
+% ======================
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,physics}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{adjustbox}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usepackage{quantikz}
+\usepackage[
+backend=biber,
+style=numeric,
+sorting=none
+]{biblatex}
+
+\addbibresource{biblio.bib}
+
+\geometry{margin=1in}
+
+% ======================
+% Title
+% ======================
+\title{\textbf{Identification of Light Sources Using a Quantum Perceptron}}
+\author{Miguel Alzate Betancur}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% ======================
+% Abstract
+% ======================
+\begin{abstract}
+Distinguishing coherent and thermal light sources is a fundamental task in quantum optics with applications in sensing, imaging, and quantum communication. Classical methods based on photon statistics are often measurement-intensive and become inefficient in noisy environments. Recent works have demonstrated that machine learning techniques can significantly improve source identification by learning statistical features directly from photon-counting data.
+
+In this work, we investigate whether such classification tasks can be addressed using quantum machine learning. We propose a quantum perceptron model that encodes photon-counting histograms into quantum states using amplitude encoding and evaluates class-dependent projections through quantum circuits. The quantum model is trained using a hybrid classical–quantum optimization scheme and is systematically compared with its classical counterpart under ideal simulation, noisy simulation, and hardware-inspired execution.
+
+Our results show that while the quantum perceptron achieves classification efficiencies comparable to classical methods under ideal conditions, its performance degrades significantly in realistic noisy environments due to circuit depth and noise sensitivity. We analyze the origin of these limitations and show that the underlying data encoding naturally induces hypergraph-like quantum correlations, suggesting alternative design strategies for more noise-resilient quantum classifiers.
+\end{abstract}
+
+\textbf{Keywords:} Quantum Computing, Quantum Machine Learning, Quantum Optics, Photon Statistics
+
+% ======================
+\section{Introduction}
+% ======================
+
+The statistical properties of light provide a powerful means to characterize its physical origin. In particular, coherence properties enable the distinction between coherent and thermal light, a task that plays a central role in quantum optics and underpins applications such as LIDAR, microscopy, and quantum communication \cite{glauber-1963, streltsov-2017}.
+
+Traditional approaches to light-source identification rely on explicit modeling of photon-number statistics and correlation functions. While theoretically well-established, these methods often require a large number of measurements and can become impractical in noisy or resource-constrained settings \cite{hlousek-2019}. Machine learning techniques have recently emerged as an effective alternative, offering fast and robust classification by learning relevant statistical features directly from experimental data \cite{you-2020, kudyshev-2020}.
+
+In parallel, quantum computing has attracted considerable interest due to its potential to efficiently process high-dimensional quantum data. Although large-scale fault-tolerant quantum computers remain unavailable, near-term noisy intermediate-scale quantum (NISQ) devices have already demonstrated advantages in specific computational tasks \cite{quantumSup2024}. Following Feynman’s original insight that quantum systems are naturally suited to simulate quantum phenomena \cite{feynman-1982}, quantum machine learning has been proposed as a promising framework for analyzing intrinsically quantum data.
+
+Given that photon statistics are fundamentally quantum mechanical, it is natural to ask whether light-source identification can benefit from quantum machine learning approaches. In this work, we explore this question by implementing a quantum perceptron classifier and systematically comparing its performance with a classical perceptron trained on the same dataset.
+
+% ======================
+\section{Quantum Perceptron Model}
+% ======================
+
+We adopt a quantum perceptron architecture inspired by the proposal of Tacchino \emph{et al.} \cite{tacchino-2019}, designed to closely mirror the structure of a classical perceptron and thereby enable a direct performance comparison.
+
+\subsection{Data and Weight Encoding}
+
+Let the input vector $\vec{i}$ and weight vector $\vec{w}$ be defined as
+\begin{equation}
+\vec{i} = (i_0, i_1, \dots, i_{m-1})^T, \quad
+\vec{w} = (w_0, w_1, \dots, w_{m-1})^T,
+\end{equation}
+with $i_j, w_j \in \{+1,-1\}$. These vectors are encoded into quantum states using amplitude encoding,
+\begin{equation}
+\ket{\psi_i} = \frac{1}{\sqrt{m}} \sum_{j=0}^{m-1} i_j \ket{j}, \quad
+\ket{\psi_w} = \frac{1}{\sqrt{m}} \sum_{j=0}^{m-1} w_j \ket{j}.
+\end{equation}
+
+The encoding is implemented through diagonal unitary operators
+\begin{equation}
+U'_i = \mathrm{diag}(\vec{i}), \quad
+U'_w = \mathrm{diag}(\vec{w}),
+\end{equation}
+followed by Hadamard layers,
+\begin{equation}
+U_i = H^{\otimes m} U'_i, \quad
+U_w = X H^{\otimes m} U'_w.
+\end{equation}
+
+\subsection{Projection Measurement}
+
+The overlap between $\ket{\psi_i}$ and $\ket{\psi_w}$ is extracted using an ancillary qubit entangled with all data qubits via a multi-controlled NOT gate. Measuring the ancilla yields a quantity proportional to
+\begin{equation}
+P \propto \left| \sum_j i_j w_j \right|^2,
+\end{equation}
+which serves as the perceptron activation.
+
+\begin{figure}[h!]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{quantikz}
+\lstick{$\ket{0}$} & \gate[wires=5]{U_i} & \gate[wires=5]{U_w} & \ctrl{5} & \qw \\
+\lstick{$\vdots$}  &                    &                    & \ctrl{1} & \qw \\
+\lstick{$\ket{0}$} &                    &                    & \targ{}  & \meter{}
+\end{quantikz}}
+\caption{Quantum circuit implementing the perceptron projection.}
+\end{figure}
+
+% ======================
+\section{Data Preparation}
+% ======================
+
+The dataset consists of photon-counting histograms measured for light sources with different mean photon numbers. Each histogram contains probabilities $P(n)$ for detecting $n=0,\dots,6$ photons. The data are rescaled to an 8-bit resolution and converted into binary representations, which are subsequently mapped to $\pm1$ vectors according to
+\begin{equation}
+i_j = (-1)^{N_j}.
+\end{equation}
+
+This procedure enables a uniform amplitude encoding of classical photon statistics into quantum states.
+
+% ======================
+\section{Training and Evaluation}
+% ======================
+
+Training is performed using a hybrid approach in which a classical genetic algorithm optimizes the perceptron weights to minimize the statistical overlap between coherent and thermal projection histograms. The overlap functional is defined as
+\begin{equation}
+\Omega[S,L] = 
+\frac{\left( \sum_n \sqrt{S_n L_n} \right)^2}
+{\left( \sum_n S_n \right)\left( \sum_n L_n \right)},
+\end{equation}
+where $S_n$ and $L_n$ denote the histogram bins for the two classes.
+
+Two training regimes are considered: a lightweight configuration compatible with noisy simulation and an exhaustive configuration optimized under ideal simulation. Classification thresholds are determined using Type-I and Type-II error analysis.
+
+% ======================
+\section{Results}
+% ======================
+
+Under ideal simulation, the quantum perceptron achieves classification efficiencies comparable to those of the classical perceptron, reaching values above $90\%$. However, when evaluated under realistic noise models, the quantum classifier suffers a severe performance degradation, with projections from different classes becoming nearly indistinguishable.
+
+This behavior is attributed to the large circuit depth induced by the multi-controlled operations and the global amplitude encoding, which renders the model highly sensitive to gate errors and decoherence.
+
+% ======================
+\section{Discussion}
+% ======================
+
+While the present results demonstrate the conceptual feasibility of quantum-based light-source classification, they also highlight the limitations of current NISQ hardware for this task. The perceptron implicitly generates hypergraph-like quantum correlations, suggesting that future designs should explicitly exploit hypergraph states or alternative encodings to reduce circuit depth.
+
+Importantly, the observed performance should be interpreted as \emph{quantum-inspired} rather than evidencing a quantum advantage. Nonetheless, this work provides a systematic benchmark and identifies concrete directions for improving quantum classifiers in optical applications.
+
+% ======================
+\printbibliography
+% ======================
+
+\end{document}
