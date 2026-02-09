@@ -1,0 +1,133 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{tacchino-2019}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=e5985f7aa76d155dd17b6e97c5a06524}{%
+           family={Tacchino},
+           familyi={T\bibinitperiod},
+           given={Francesco},
+           giveni={F\bibinitperiod}}}%
+        {{hash=fa8ecd6f771849c9a17bd4d6ab7a508d}{%
+           family={Macchiavello},
+           familyi={M\bibinitperiod},
+           given={Chiara},
+           giveni={C\bibinitperiod}}}%
+        {{hash=23db5e898eec3ed73af58e331cdfbeb4}{%
+           family={Gerace},
+           familyi={G\bibinitperiod},
+           given={Dario},
+           giveni={D\bibinitperiod}}}%
+        {{hash=40598842267c6eda63266044051fef9c}{%
+           family={Bajoni},
+           familyi={B\bibinitperiod},
+           given={Daniele},
+           giveni={D\bibinitperiod}}}%
+      }
+      \strng{namehash}{f37da7e6b09e24caeacc5b75dd8f62bf}
+      \strng{fullhash}{abfe2f24a5018f4ee54f129dfe7b27a0}
+      \strng{fullhashraw}{abfe2f24a5018f4ee54f129dfe7b27a0}
+      \strng{bibnamehash}{f37da7e6b09e24caeacc5b75dd8f62bf}
+      \strng{authorbibnamehash}{f37da7e6b09e24caeacc5b75dd8f62bf}
+      \strng{authornamehash}{f37da7e6b09e24caeacc5b75dd8f62bf}
+      \strng{authorfullhash}{abfe2f24a5018f4ee54f129dfe7b27a0}
+      \strng{authorfullhashraw}{abfe2f24a5018f4ee54f129dfe7b27a0}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{npj quantum information}
+      \field{month}{3}
+      \field{number}{1}
+      \field{title}{{An artificial neuron implemented on an actual quantum processor}}
+      \field{volume}{5}
+      \field{year}{2019}
+      \verb{doi}
+      \verb 10.1038/s41534-019-0140-4
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1038/s41534-019-0140-4
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1038/s41534-019-0140-4
+      \endverb
+    \endentry
+    \entry{Rossi_2013}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=fd4fe8657112bec19ceb03436154bfe5}{%
+           family={Rossi},
+           familyi={R\bibinitperiod},
+           given={M},
+           giveni={M\bibinitperiod}}}%
+        {{hash=cca319cf0d7699402f7e317b0940c485}{%
+           family={Huber},
+           familyi={H\bibinitperiod},
+           given={M},
+           giveni={M\bibinitperiod}}}%
+        {{hash=75227a67f4d854796100b3782935ccf0}{%
+           family={Bruß},
+           familyi={B\bibinitperiod},
+           given={D},
+           giveni={D\bibinitperiod}}}%
+        {{hash=6c3f789dc58ac3a5a1a7f8179527fe97}{%
+           family={Macchiavello},
+           familyi={M\bibinitperiod},
+           given={C},
+           giveni={C\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IOP Publishing}%
+      }
+      \strng{namehash}{9fdbfe22a98d8ea4543a2879192268e5}
+      \strng{fullhash}{a016ad71572e74debc010b185a66e6d5}
+      \strng{fullhashraw}{a016ad71572e74debc010b185a66e6d5}
+      \strng{bibnamehash}{9fdbfe22a98d8ea4543a2879192268e5}
+      \strng{authorbibnamehash}{9fdbfe22a98d8ea4543a2879192268e5}
+      \strng{authornamehash}{9fdbfe22a98d8ea4543a2879192268e5}
+      \strng{authorfullhash}{a016ad71572e74debc010b185a66e6d5}
+      \strng{authorfullhashraw}{a016ad71572e74debc010b185a66e6d5}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{1367-2630}
+      \field{journaltitle}{New Journal of Physics}
+      \field{month}{11}
+      \field{number}{11}
+      \field{title}{Quantum hypergraph states}
+      \field{volume}{15}
+      \field{year}{2013}
+      \field{pages}{113022}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1088/1367-2630/15/11/113022
+      \endverb
+      \verb{urlraw}
+      \verb http://dx.doi.org/10.1088/1367-2630/15/11/113022
+      \endverb
+      \verb{url}
+      \verb http://dx.doi.org/10.1088/1367-2630/15/11/113022
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
